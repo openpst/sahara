@@ -12,3 +12,6 @@
 [submodule "lib/gui-common"]
 	path = lib/gui-common
 	url = https://github.com/openpst/gui-common
+[submodule "lib/libopenpst"]
+	path = lib/libopenpst
+	url = https://github.com/openpst/libopenpst
