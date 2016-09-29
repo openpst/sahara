@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sahara_config>
+	<images>
+		<!-- image_id referenced in src/qc/mbn.h - see enum MbnImageId -->
+		<!-- OpenPST uses path relative to xml file, or absolute paths -->
+		<image image_id="13" image_path="MPRG8x10.mbn" programmer="true" />
+		<image image_id="21" image_path="sbl1.bin" programmer="false" />
+		<image image_id="22" image_path="rpm.mbn" programmer="false" />
+		<image image_id="25" image_path="tz.bin" programmer="false" />
+	</images>
+</sahara_config>

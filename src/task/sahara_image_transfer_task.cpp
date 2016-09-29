@@ -1,0 +1,101 @@
+#include "gui/task/sahara_image_transfer_task.h"
+
+using namespace OpenPST::GUI;
+
+SaharaImageTransferTask::SaharaImageTransferTask(std::string imagePath, SaharaReadDataRequest initalReadRequest, ProgressGroupWidget* progressContainer, SaharaSerial& port) :
+	imagePath(imagePath),
+	initalReadRequest(initalReadRequest),
+	progressContainer(progressContainer),
+	port(port)
+{
+}
+
+SaharaImageTransferTask::~SaharaImageTransferTask()
+{
+}
+
+void SaharaImageTransferTask::run()
+{
+	size_t fileSize;
+	size_t totalSent = 0;
+	SaharaReadDataRequest nextOffset = initalReadRequest;
+	QString tmp;
+
+	QMetaObject::invokeMethod(progressContainer, "reset", Qt::QueuedConnection);
+
+	std::ifstream file(imagePath.c_str(), std::ios::in | std::ios::binary);
+
+	if (!file.is_open()) {
+		emit error(tmp.sprintf("Could not open image file at %s", imagePath.c_str()));
+		return;
+	}
+
+	file.seekg(0, file.end);
+	fileSize = (size_t)file.tellg();
+	file.seekg(0, file.beg);
+
+	QMetaObject::invokeMethod(progressContainer, "setProgress", Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, fileSize), Q_ARG(int, 0));
+	QMetaObject::invokeMethod(progressContainer, "setTextLeft", Qt::QueuedConnection, Q_ARG(QString, tmp.sprintf("Sending %lu bytes from offset 0x%08X", nextOffset.size, nextOffset.offset)));
+	QMetaObject::invokeMethod(progressContainer, "setTextRight", Qt::QueuedConnection, Q_ARG(QString, tmp.sprintf("%d/%d bytes", totalSent, fileSize)));
+
+	emit log(tmp.sprintf("Sending image %s", imagePath.c_str()));
+
+	while (totalSent != fileSize) {
+		if (cancelled()) {
+			emit aborted();
+			return;
+		}
+
+		uint32_t thisWriteOffset = nextOffset.offset;
+		size_t thisWriteSize = nextOffset.size;
+
+		QMetaObject::invokeMethod(progressContainer, "setTextLeft", Qt::QueuedConnection, Q_ARG(QString, tmp.sprintf("Sending %lu bytes from offset 0x%08X", thisWriteSize, thisWriteOffset)));
+		QMetaObject::invokeMethod(progressContainer, "setTextRight", Qt::QueuedConnection, Q_ARG(QString, tmp.sprintf("%d/%d bytes", totalSent, fileSize)));
+		QMetaObject::invokeMethod(progressContainer, "setProgress", Qt::QueuedConnection, Q_ARG(int, totalSent));
+
+		try {
+			nextOffset = port.sendImage(file, thisWriteOffset, thisWriteSize);
+		} catch (SaharaSerialError e) {
+			file.close(); 
+			emit error(e.what());
+			return;
+		} catch (serial::IOException e) {
+			file.close(); 
+			emit error(e.what());
+			return;
+		} catch (...) {
+			file.close();
+			throw;
+		}
+
+		totalSent += thisWriteSize;
+
+		if ((nextOffset.offset == 0x00 && nextOffset.size == 0x00) || initalReadRequest.imageId != nextOffset.imageId) {
+			break;
+		}
+	}
+
+	file.close();
+
+	// reset progress to 100% based on total sent in case the image was pulled from a live device in which case there is probably extra data
+	QMetaObject::invokeMethod(progressContainer, "setProgress", Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, totalSent), Q_ARG(int, totalSent));
+	QMetaObject::invokeMethod(progressContainer, "setTextLeft", Qt::QueuedConnection, Q_ARG(QString,"Send Image Complete"));
+	QMetaObject::invokeMethod(progressContainer, "setTextRight", Qt::QueuedConnection, Q_ARG(QString, tmp.sprintf("%d/%d bytes", totalSent, totalSent)));
+	
+	emit log(tmp.sprintf("Image %s successfully sent.", imagePath.c_str()));
+	
+	if (initalReadRequest.imageId != nextOffset.imageId) {
+		emit log(tmp.sprintf("Device is now requesting %lu bytes from image %02X - %s",
+			nextOffset.size,
+			nextOffset.imageId,
+			port.getNamedRequestedImage(nextOffset.imageId)
+		));
+	} else {
+		emit log("If there are no more images requested, you should send the done command. If the device requested EHOSTDL, after "
+			"the done command the device will execute the programmer. You will need to speak that programmers protocol to continue further. "
+			"Possible protocols for EHOSTDL programmers are DLOAD, Streaming DLOAD, and Firehose.");
+	}
+
+	emit complete();
+}
+
