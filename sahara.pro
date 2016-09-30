@@ -38,6 +38,37 @@ FORMS  += resources/ui/sahara_window.ui
 
 RESOURCES = resources/sahara.qrc
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/release/  -llibopenpst -lserial
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/debug/ -llibopenpst -lserial
-else:unix: LIBS += -L$$OUT_PWD/ -llibopenpst -lserial
+###
+## Add in used gui-common stuff for sahara
+###
+
+SOURCES += \
+    $$PWD/lib/gui-common/src/task/task_runner.cpp \
+    $$PWD/lib/gui-common/src/widget/log_widget.cpp \
+    $$PWD/lib/gui-common/src/widget/progress_group_widget.cpp \
+    $$PWD/lib/gui-common/src/about_dialog.cpp \
+    $$PWD/lib/gui-common/src/application.cpp
+
+HEADERS  += \
+    $$PWD/lib/gui-common/include/task/task.h \
+    $$PWD/lib/gui-common/include/task/task_runner.h \
+    $$PWD/lib/gui-common/include/widget/log_widget.h \
+    $$PWD/lib/gui-common/include/widget/progress_group_widget.h \
+    $$PWD/lib/gui-common/include/about_dialog.h \
+    $$PWD/lib/gui-common/include/application.h
+
+FORMS  += $$PWD/lib/gui-common/resources/ui/about_dialog.ui
+FORMS  += $$PWD/lib/gui-common/resources/ui/log_widget.ui
+FORMS  += $$PWD/lib/gui-common/resources/ui/progress_group_widget.ui
+
+###
+## Make libopenpst and link against it
+###
+
+QMAKE_EXTRA_TARGETS += libopenpst
+PRE_TARGETDEPS += libopenpst
+libopenpst.commands = cd ./../lib/libopenpst/ && make
+
+LIBS += -L./../lib/libopenpst/build -lopenpst
+
+
