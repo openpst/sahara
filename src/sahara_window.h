@@ -18,15 +18,15 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 #include "ui_sahara_window.h"
-#include "qc/sahara_serial.h"
-#include "qc/sahara.h"
+#include "qualcomm/sahara_serial.h"
+#include "qualcomm/sahara.h"
 #include "util/hexdump.h"
 #include "util/sleep.h"
 #include "util/endian.h"
-#include "gui/about_dialog.h"
-#include "gui/task_runner_window.h"
-#include "gui/task/sahara_memory_read_task.h"
-#include "gui/task/sahara_image_transfer_task.h"
+#include "about_dialog.h"
+#include "task_runner_window.h"
+#include "task/sahara_memory_read_task.h"
+#include "task/sahara_image_transfer_task.h"
 
 using namespace OpenPST::GUI;
 

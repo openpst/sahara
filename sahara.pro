@@ -2,9 +2,9 @@
 # PLACEHOLDER
 #-------------------------------------------------
 
-QT += core gui
+lessThan(QT_MAJOR_VERSION, 5): error("At least Qt 5.0 is required")
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui widgets
 
 CONFIG += C++11
 
@@ -12,28 +12,26 @@ TARGET = sahara
 
 TEMPLATE = app
 
-INCLUDEPATH += $$PWD/../src $$PWD/../lib/serial/include
+INCLUDEPATH += \
+	$$PWD/src \
+	$$PWD/lib/libopenpst/include \
+	$$PWD/lib/libopenpst/lib/serial/include \
+	$$PWD/lib/gui-common/include
 
-DEPENDPATH += $$PWD/../
+DEPENDPATH += $$PWD/
 
-VPATH += $$PWD/../
+VPATH += $$PWD/
 
 SOURCES += \
-    src/util/hexdump.cpp \
-    src/gui/sahara_window.cpp \
-    src/gui/worker/sahara_memory_read_worker.cpp \
-    src/gui/worker/sahara_image_transfer_worker.cpp \
-    src/gui/application.cpp \
-    src/sahara.cpp
+    src/sahara_window.cpp \
+    src/task/sahara_image_transfer_task.cpp \
+    src/task/sahara_memory_read_task.cpp \
+    src/main.cpp
 
 HEADERS  += \
-    src/include/definitions.h \
-    src/util/hexdump.h \
-    src/gui/sahara_window.h \
-    src/qc/sahara_serial.h \
-    src/gui/worker/sahara_memory_read_worker.h \
-    src/gui/worker/sahara_image_transfer_worker.h \
-    src/gui/application.h
+    src/sahara_window.h \
+    src/task/sahara_image_transfer_task.h \
+    src/task/sahara_memory_read_task.h
 
 
 FORMS  += resources/ui/sahara_window.ui

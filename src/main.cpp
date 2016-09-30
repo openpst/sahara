@@ -8,8 +8,8 @@
 * @author Gassan Idriss <ghassani@gmail.com>
 */
 
-#include "gui/application.h"
-#include "gui/sahara_window.h"
+#include "application.h"
+#include "sahara_window.h"
 
 /**
  * @brief main

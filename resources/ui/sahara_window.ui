@@ -1106,7 +1106,7 @@
      <x>0</x>
      <y>0</y>
      <width>881</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -1147,13 +1147,13 @@
   <customwidget>
    <class>OpenPST::GUI::ProgressGroupWidget</class>
    <extends>QGroupBox</extends>
-   <header>gui/widget/progress_group_widget.h</header>
+   <header>widget/progress_group_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>OpenPST::GUI::LogWidget</class>
    <extends>QGroupBox</extends>
-   <header>gui/widget/log_widget.h</header>
+   <header>widget/log_widget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -2,10 +2,10 @@
 #ifndef _GUI_TASK_SAHARA_MEMORY_READ_TASK_H
 #define _GUI_TASK_SAHARA_MEMORY_READ_TASK_H
 
-#include "include/definitions.h"
-#include "gui/task/task.h"
-#include "qc/sahara_serial.h"
-#include "gui/widget/progress_group_widget.h"
+#include "definitions.h"
+#include "task/task.h"
+#include "qualcomm/sahara_serial.h"
+#include "widget/progress_group_widget.h"
 
 
 using OpenPST::QC::SaharaSerial;
