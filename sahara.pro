@@ -13,7 +13,7 @@ TARGET = sahara
 TEMPLATE = app
 
 INCLUDEPATH += \
-	$$PWD/src \
+	$$PWD/include \
 	$$PWD/lib/libopenpst/include \
 	$$PWD/lib/libopenpst/lib/serial/include \
 	$$PWD/lib/gui-common/include
@@ -29,9 +29,9 @@ SOURCES += \
     src/main.cpp
 
 HEADERS  += \
-    src/sahara_window.h \
-    src/task/sahara_image_transfer_task.h \
-    src/task/sahara_memory_read_task.h
+    include/sahara_window.h \
+    include/task/sahara_image_transfer_task.h \
+    include/task/sahara_memory_read_task.h
 
 
 FORMS  += resources/ui/sahara_window.ui
