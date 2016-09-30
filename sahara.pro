@@ -67,7 +67,7 @@ FORMS  += $$PWD/lib/gui-common/resources/ui/progress_group_widget.ui
 
 QMAKE_EXTRA_TARGETS += libopenpst
 PRE_TARGETDEPS += libopenpst
-libopenpst.commands = cd ./../lib/libopenpst/ && make
+libopenpst.commands = cd ./../lib/libopenpst/ && make qmake
 
 LIBS += -L./../lib/libopenpst/build -lopenpst
 
