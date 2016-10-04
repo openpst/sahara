@@ -1,5 +1,5 @@
 #-------------------------------------------------
-# QMake Build Script for: Sahara
+# QMake Build Script for: openpst/sahara
 #-------------------------------------------------
 
 lessThan(QT_MAJOR_VERSION, 5): error("At least Qt 5.0 is required")
