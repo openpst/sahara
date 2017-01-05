@@ -363,7 +363,7 @@ void SaharaWindow::sendClientCommand()
 
 		if (requestedCommand == kSaharaClientOemPkHashRead) {
 			SaharaOemPkHashResponse* resp = (SaharaOemPkHashResponse*)&data[0];
-			hexdump(resp->hash, sizeof(SaharaOemPkHashResponse), tmp, false);
+			//TODO hexdump(resp->hash, sizeof(SaharaOemPkHashResponse), tmp, false);
 			log(tmp.sprintf("OEM Public Key Hash Hex:\n %s", tmp.toStdString().c_str()));
 		} else if (requestedCommand == kSaharaClientCmdGetSblVersion) {
 			SaharaSblVersionResponse* resp = (SaharaSblVersionResponse*)&data[0];
