@@ -2,7 +2,7 @@
 * LICENSE PLACEHOLDER
 *
 * @file sahara.cpp
-* @package OpenPST
+* @package openpst/sahara
 * @brief sahara program entry point
 *
 * @author Gassan Idriss <ghassani@gmail.com>

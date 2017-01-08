@@ -3,7 +3,7 @@
 *
 * @file sahara_window.cpp
 * @class SaharaWindow
-* @package OpenPST
+* @package openpst/sahara
 * @brief Sahara GUI interface class
 *
 * @author Gassan Idriss <ghassani@gmail.com>
@@ -12,7 +12,11 @@
 #include "sahara_window.h"
 
 using namespace OpenPST::GUI;
+
 using OpenPST::QC::SaharaSerialError;
+using OpenPST::QC::MbnParser;
+using OpenPST::QC::Mbn;
+using OpenPST::QC::MbnParserException;
 using serial::PortInfo;
 
 #define log(m) ui->logWidget->log(m); 
@@ -59,6 +63,8 @@ SaharaWindow::SaharaWindow(QWidget *parent) :
 	QObject::connect(ui->doneButton,				SIGNAL(clicked()), this, SLOT(sendDone()));
 	QObject::connect(ui->sendImageFileBrowseButton, SIGNAL(clicked()), this, SLOT(browseForImage()));
 	QObject::connect(ui->sendImageButton,			SIGNAL(clicked()), this, SLOT(sendImage()));
+	QObject::connect(ui->sendImageCheckButton,		SIGNAL(clicked()), this, SLOT(checkImage()));
+	QObject::connect(ui->sendImageXmlCheckButton,	SIGNAL(clicked()), this, SLOT(checkXml()));
 	QObject::connect(ui->memoryReadButton,			SIGNAL(clicked()), this, SLOT(memoryRead()));
 	QObject::connect(ui->actionAbout,				SIGNAL(triggered()), this, SLOT(showAboutDialog()));
 	
@@ -291,6 +297,64 @@ void SaharaWindow::sendImage()
 	}
 	
 	addTask(new SaharaImageTransferTask(ui->sendImageFileValue->text().toStdString(), deviceState.imageTransfer, ui->progressGroupBox, port));
+}
+
+void SaharaWindow::checkImage()
+{
+	QString tmp;
+
+	if (!ui->sendImageFileValue->text().length()) {
+		log("Enter or browse for an image");
+		return;
+	}
+	
+	MbnParser parser;
+
+	try {
+		auto fileInfo = parser.parse(ui->sendImageFileValue->text().toStdString(), OpenPST::QC::kMbnParserFlagNone);
+
+		log(tmp.sprintf("This image says it is image id %d (%s)", fileInfo->getImageId(), fileInfo->getImageName().c_str()));
+
+		if (deviceState.mode == kSaharaModeImageTxPending) {
+			if (fileInfo->getImageId() == deviceState.imageTransfer.imageId) {
+				if (fileInfo->getSignaturePtr()) {
+					log("Base on the requested image id, this appears to be a correct image. This image is signed, and may not be compatible with this device.");
+				} else {
+					log("Base on the requested image id, this appears to be a correct image.");
+				}		
+			}
+		} 
+
+	} catch (MbnParserException& e) {
+		log(tmp.sprintf("Error parsing mbn file at %s.", ui->sendImageFileValue->text().toStdString().c_str()));
+		log(e.what());
+	}
+}
+
+void SaharaWindow::checkXml()
+{
+	QString tmp;
+
+	if (!ui->sendImageXmlPathValue->text().length()) {
+		log("Enter or browse for a valid sahara.xml file");
+		return;
+	}
+
+	QFile saharXml(ui->sendImageXmlPathValue->text());
+	
+	QDomDocument document;
+	document.setContent(&saharXml);
+	
+	QDomNodeList rootNode = document.elementsByTagName("sahara_config");
+	QString tmp;
+	for (int i = 0; i < nodes.count(); i++){
+		QDomNode elm = nodes.at(i);
+		QDomElement e = elm.toElement();
+		QListWidgetItem* item = new QListWidgetItem(ui->nvReadSelectionList);
+		item->setText(tmp.sprintf("Item #%d - %s", e.attribute("id").toInt(), e.text().toStdString().c_str()));
+		item->setData(1, e.attribute("id").toInt());
+		ui->nvReadSelectionList->addItem(item);
+	}
 }
 
 /**

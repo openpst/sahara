@@ -3,23 +3,24 @@
 *
 * @file sahara_window.h
 * @class SaharaWindow
-* @package OpenPST
+* @package openpst/sahara
 * @brief Sahara GUI interface class definitions
 *
 * @author Gassan Idriss <ghassani@gmail.com>
 */
 
-#ifndef _GUI_SAHARA_WINDOW_H
-#define _GUI_SAHARA_WINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QVariant>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QXml>
 #include "ui_sahara_window.h"
 #include "qualcomm/sahara_serial.h"
 #include "qualcomm/sahara.h"
+#include "qualcomm/mbn_parser.h"
 #include "util/hexdump.h"
 #include "util/sleep.h"
 #include "util/endian.h"
@@ -116,6 +117,16 @@ namespace OpenPST {
 				void sendImage();
 
 				/**
+				* @brief checkImage
+				*/
+				void checkImage();
+
+				/**
+				* @brief checkXml
+				*/
+				void checkXml();
+
+				/**
 				* @brief sendDone
 				*/
 				void sendDone();
@@ -148,4 +159,3 @@ namespace OpenPST {
 		};
 	}
 }
-#endif // _GUI_SAHARA_WINDOW_H

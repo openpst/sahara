@@ -4,7 +4,7 @@
 
 lessThan(QT_MAJOR_VERSION, 5): error("At least Qt 5.0 is required")
 
-QT       += core gui widgets
+QT       += core gui widgets xml
 CONFIG   += C++11 debug_and_release build_all
 TARGET   = sahara
 TEMPLATE = app

@@ -1,6 +1,15 @@
+/**
+* LICENSE PLACEHOLDER
+*
+* @file sahara_image_transfer_task.h
+* @class SaharaImageTransferTask
+* @package openpst/sahara
+* @brief Handles the image transfer threaded task operation
+*
+* @author Gassan Idriss <ghassani@gmail.com>
+*/
 
-#ifndef _GUI_TASK_SAHARA_IMAGE_TRANSFER_TASK_H
-#define _GUI_TASK_SAHARA_IMAGE_TRANSFER_TASK_H
+#pragma once
 
 #include "definitions.h"
 #include "task/task.h"
@@ -28,6 +37,3 @@ namespace OpenPST {
 		};
 	}
 }
-
-
-#endif // _GUI_TASK_SAHARA_IMAGE_TRANSFER_TASK_H
