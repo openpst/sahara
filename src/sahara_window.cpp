@@ -346,7 +346,7 @@ void SaharaWindow::checkXml()
 	document.setContent(&saharXml);
 	
 	QDomNodeList rootNode = document.elementsByTagName("sahara_config");
-	QString tmp;
+	/*QString tmp;
 	for (int i = 0; i < nodes.count(); i++){
 		QDomNode elm = nodes.at(i);
 		QDomElement e = elm.toElement();
@@ -354,7 +354,7 @@ void SaharaWindow::checkXml()
 		item->setText(tmp.sprintf("Item #%d - %s", e.attribute("id").toInt(), e.text().toStdString().c_str()));
 		item->setData(1, e.attribute("id").toInt());
 		ui->nvReadSelectionList->addItem(item);
-	}
+	}*/
 }
 
 /**
