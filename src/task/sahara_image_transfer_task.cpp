@@ -91,9 +91,7 @@ void SaharaImageTransferTask::run()
 			port.getNamedRequestedImage(nextOffset.imageId)
 		));
 	} else {
-		emit log("If there are no more images requested, you should send the done command. If the device requested EHOSTDL, after "
-			"the done command the device will execute the programmer. You will need to speak that programmers protocol to continue further. "
-			"Possible protocols for EHOSTDL programmers are DLOAD, Streaming DLOAD, and Firehose.");
+		emit log("If there are no more images requested, you should send the done command.");
 	}
 
 	emit complete();

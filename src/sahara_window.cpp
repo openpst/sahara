@@ -29,7 +29,6 @@ SaharaWindow::SaharaWindow(QWidget *parent) :
 
 	ui->writeHelloSwitchModeValue->addItem("", -1);
 	ui->writeHelloSwitchModeValue->addItem("Image Transfer Pending", kSaharaModeImageTxPending);
-	ui->writeHelloSwitchModeValue->addItem("Image Transfer Complete", kSaharaModeImageTxComplete);
 	ui->writeHelloSwitchModeValue->addItem("Memory Debug",	kSaharaModeMemoryDebug);
 	ui->writeHelloSwitchModeValue->addItem("Client Command Mode", kSaharaModeCommand);
 
@@ -45,9 +44,7 @@ SaharaWindow::SaharaWindow(QWidget *parent) :
 
 	ui->switchModeValue->addItem("", -1);
 	ui->switchModeValue->addItem("Image Transfer Pending", kSaharaModeImageTxPending);
-	//ui->switchModeValue->addItem("Image Transfer Complete", kSaharaModeImageTxComplete);
 	ui->switchModeValue->addItem("Memory Debug", kSaharaModeMemoryDebug);
-	//ui->switchModeValue->addItem("Client Command Mode", kSaharaModeCommand);
 
 	updatePortList();
 
@@ -199,9 +196,11 @@ void SaharaWindow::readHello()
 		ui->writeHelloSwitchModeValue->setCurrentIndex(index);
 	}
 
-	deviceState.mode = req.mode;
+	deviceState.mode   		= req.mode;
+	deviceState.version 	= req.version;
+	deviceState.minVersion  = req.minVersion;
 
-	ui->deviceStateText->setText(port.getNamedMode(req.mode).c_str());
+	updateDeviceState();
 }
 
 /**
@@ -233,7 +232,7 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 		return;
 	}
 
-	ui->deviceStateText->setText(port.getNamedMode(deviceState.mode).c_str());
+	updateDeviceState();
 
 	if (isSwitchMode) {
 		log(tmp.sprintf("Attempting to switch device to mode: %s", port.getNamedMode(mode).c_str()));
@@ -242,7 +241,6 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 	if (deviceState.mode == kSaharaModeImageTxPending) {
 		log(tmp.sprintf("Device requesting %lu bytes of image 0x%02X - %s", 
 			deviceState.imageTransfer.size, deviceState.imageTransfer.imageId, port.getNamedRequestedImage(deviceState.imageTransfer.imageId).c_str()));
-		ui->mainTabSet->setCurrentIndex(0);
 		
 		QMessageBox::StandardButton userResponse = QMessageBox::question(this, "Send Image", tmp.append(". Would you like to browse and send this now?"));
 
@@ -256,10 +254,8 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 
 	} else if (deviceState.mode == kSaharaModeMemoryDebug) {
 		log(tmp.sprintf("Memory table located at 0x%08X with size of %lu bytes", deviceState.memoryDebug.memoryTableAddress, deviceState.memoryDebug.memoryTableLength));
-		ui->mainTabSet->setCurrentIndex(1); 
 		debugMemoryRead();
 	} else if (deviceState.mode == kSaharaModeCommand) {
-		ui->mainTabSet->setCurrentIndex(2); 
 		log("Device is awaiting client commands");
 	}
 }
@@ -293,7 +289,7 @@ void SaharaWindow::sendImage()
 		log("Device is not requesting an image transfer");
 		return;
 	}
-
+	
 	addTask(new SaharaImageTransferTask(ui->sendImageFileValue->text().toStdString(), deviceState.imageTransfer, ui->progressGroupBox, port));
 }
 
@@ -318,9 +314,7 @@ void SaharaWindow::switchMode()
 	));
 
 	try {
-		port.switchMode(requestMode);
-		readHello();
-		writeHello();
+		deviceState = port.switchModeAndHello(requestMode);
 	} catch (SaharaSerialError& e) {
 		log(e.what());
 		return;
@@ -331,6 +325,8 @@ void SaharaWindow::switchMode()
 	}
 
 	log(tmp.sprintf("Device In Mode: %s", port.getNamedMode(deviceState.mode).c_str()));
+
+	updateDeviceState();
 }
 
 /**
@@ -700,4 +696,22 @@ void SaharaWindow::closeEvent(QCloseEvent *event)
 	}
 
 	event->accept();
+}
+
+void SaharaWindow::updateDeviceState()
+{
+	QString ver;
+	QString minVer;
+
+	ui->deviceStateText->setText(port.getNamedMode(deviceState.mode).c_str());
+	ui->deviceMinVersionText->setText(ver.sprintf("Ver: %d", deviceState.version));
+	ui->deviceMinVersionText->setText(minVer.sprintf("Min. Ver: %d", deviceState.minVersion));
+
+	if (deviceState.mode == kSaharaModeImageTxPending) {
+		ui->mainTabSet->setCurrentIndex(0);
+	} else if (deviceState.mode == kSaharaModeMemoryDebug) {
+		ui->mainTabSet->setCurrentIndex(1);
+	} else if(deviceState.mode == kSaharaModeCommand) {
+		ui->mainTabSet->setCurrentIndex(2);
+	}
 }

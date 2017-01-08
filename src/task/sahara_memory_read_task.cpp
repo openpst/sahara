@@ -54,7 +54,6 @@ void SaharaMemoryReadTask::run()
 			amountToRead = size;
 		}
 
-
 		try {
 			readSoFar += port.readMemory(address + readSoFar, amountToRead, file);
 			

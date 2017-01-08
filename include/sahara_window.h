@@ -141,6 +141,7 @@ namespace OpenPST {
 				void onTaskLog(QString msg);
 
 			protected:
+				void updateDeviceState();
 				void closeEvent(QCloseEvent *event);
 				void addTask(Task* task);
 
