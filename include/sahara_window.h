@@ -16,7 +16,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
-#include <QXml>
 #include "ui_sahara_window.h"
 #include "qualcomm/sahara_serial.h"
 #include "qualcomm/sahara.h"

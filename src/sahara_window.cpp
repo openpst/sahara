@@ -17,6 +17,7 @@ using OpenPST::QC::SaharaSerialError;
 using OpenPST::QC::MbnParser;
 using OpenPST::QC::Mbn;
 using OpenPST::QC::MbnParserException;
+using OpenPST::Serial::SerialError;
 using serial::PortInfo;
 
 #define log(m) ui->logWidget->log(m); 
@@ -152,9 +153,9 @@ void SaharaWindow::connectToPort()
 
 				ui->portDisconnectButton->setEnabled(true);
 
-			} catch (serial::IOException e) {
+			} catch (SerialError& e) {
 				log(tmp.sprintf("Error connecting to device on %s", device.port.c_str()));
-				log(e.getErrorNumber() == 13 ? "Permission Denied" : e.what());
+				log(e.getCode() == 13 ? "Permission Denied" : e.what());
 				return;
 			}
 			break;
@@ -185,7 +186,7 @@ void SaharaWindow::readHello()
 	} catch (SaharaSerialError e) {
 		log(e.what());
 		return disconnectPort();
-	} catch (serial::IOException e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return disconnectPort();
 	}
@@ -232,7 +233,7 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 	} catch (SaharaSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException& e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		disconnectPort();
 		return;
@@ -333,7 +334,7 @@ void SaharaWindow::checkImage()
 
 void SaharaWindow::checkXml()
 {
-	QString tmp;
+	/*QString tmp;
 
 	if (!ui->sendImageXmlPathValue->text().length()) {
 		log("Enter or browse for a valid sahara.xml file");
@@ -346,7 +347,7 @@ void SaharaWindow::checkXml()
 	document.setContent(&saharXml);
 	
 	QDomNodeList rootNode = document.elementsByTagName("sahara_config");
-	/*QString tmp;
+	QString tmp;
 	for (int i = 0; i < nodes.count(); i++){
 		QDomNode elm = nodes.at(i);
 		QDomElement e = elm.toElement();
@@ -382,7 +383,7 @@ void SaharaWindow::switchMode()
 	} catch (SaharaSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException& e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		disconnectPort();
 		return;
@@ -413,7 +414,7 @@ void SaharaWindow::sendClientCommand()
 	} catch (SaharaSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException& e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		disconnectPort();
 		return;
@@ -460,7 +461,7 @@ void SaharaWindow::sendReset()
 		port.sendReset();
 	} catch (SaharaSerialError& e) {
 		log(e.what());
-	} catch (serial::IOException& e) {
+	} catch (SerialError& e) {
 		log(e.what());
 	}
 
@@ -485,7 +486,7 @@ void SaharaWindow::sendDone()
 	} catch (SaharaSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException& e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return;
 	}
@@ -569,7 +570,7 @@ void SaharaWindow::debugMemoryRead()
 	} catch (SaharaSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException& e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return;
 	}
