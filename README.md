@@ -10,7 +10,7 @@ However, even if you have no valid programmer file(s) to send, you can still que
 
 Additionally sahara mode also handles debug mode. Debug mode allows to transfer the state of a crash. It also allows for reading memory at the state of the crash point. This includes all user and kernel mode memory. However, it does not include memory protected by the TEE (Trusted Execution Environment) implementation. So yeah.... not the good stuff :(
 
-When a device in sahara debug mode is the case, it will respond the initial hello handshake with a memory address to read that is a table of name and memory locations to read to help the developer debug a system crash. sahara will autmagically ask you where to dump these files, and further confirm if you wish to dump the larger segments.
+When a device in sahara debug mode is the case, it will respond the initial hello handshake with a memory address to read that is a table of name and memory locations to read to help the developer debug a system crash. The program will ask if and where to dump these files, and further confirm if you wish to dump the larger segments.
 
 ### Compiling
 
