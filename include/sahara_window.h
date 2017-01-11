@@ -28,10 +28,13 @@
 #include "task/sahara_memory_read_task.h"
 #include "task/sahara_image_transfer_task.h"
 
-using namespace OpenPST::GUI;
-
 using OpenPST::QC::SaharaSerial;
 using OpenPST::QC::SaharaState;
+using OpenPST::QC::SaharaSerialError;
+using OpenPST::Serial::SerialError;
+using OpenPST::QC::MbnParser;
+using OpenPST::QC::Mbn;
+using OpenPST::QC::MbnParserException;
 using serial::PortInfo;
 
 namespace Ui {

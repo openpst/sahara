@@ -13,13 +13,6 @@
 
 using namespace OpenPST::GUI;
 
-using OpenPST::QC::SaharaSerialError;
-using OpenPST::QC::MbnParser;
-using OpenPST::QC::Mbn;
-using OpenPST::QC::MbnParserException;
-using OpenPST::Serial::SerialError;
-using serial::PortInfo;
-
 #define log(m) ui->logWidget->log(m); 
 
 SaharaWindow::SaharaWindow(QWidget *parent) :
@@ -499,11 +492,13 @@ void SaharaWindow::sendDone()
 */
 void SaharaWindow::disconnectPort()
 {
-	port.close();
-	log("Port Closed");
-	ui->portDisconnectButton->setEnabled(false);
-	ui->deviceStateText->setText("Disconnected");
-	deviceState = {};
+	if (port.isOpen()) {
+		port.close();
+		log("Port Closed");
+		ui->portDisconnectButton->setEnabled(false);
+		ui->deviceStateText->setText("Disconnected");
+		deviceState = {};
+	}
 }
 
 
