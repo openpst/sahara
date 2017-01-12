@@ -13,9 +13,11 @@
 
 #include <QMainWindow>
 #include <QVariant>
+#include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QtXml>
 #include "ui_sahara_window.h"
 #include "qualcomm/sahara_serial.h"
 #include "qualcomm/sahara.h"
@@ -122,6 +124,11 @@ namespace OpenPST {
 				* @brief checkImage
 				*/
 				void checkImage();
+
+				/**
+				* @brief browseForXml
+				*/
+				void browseForXml();
 
 				/**
 				* @brief checkXml

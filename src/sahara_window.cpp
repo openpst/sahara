@@ -57,6 +57,8 @@ SaharaWindow::SaharaWindow(QWidget *parent) :
 	QObject::connect(ui->doneButton,				SIGNAL(clicked()), this, SLOT(sendDone()));
 	QObject::connect(ui->sendImageFileBrowseButton, SIGNAL(clicked()), this, SLOT(browseForImage()));
 	QObject::connect(ui->sendImageButton,			SIGNAL(clicked()), this, SLOT(sendImage()));
+	QObject::connect(ui->sendImageXmlButton,		SIGNAL(clicked()), this, SLOT(sendImage()));
+	QObject::connect(ui->sendImageXmlBrowseButton,  SIGNAL(clicked()), this, SLOT(browseForXml()));
 	QObject::connect(ui->sendImageCheckButton,		SIGNAL(clicked()), this, SLOT(checkImage()));
 	QObject::connect(ui->sendImageXmlCheckButton,	SIGNAL(clicked()), this, SLOT(checkXml()));
 	QObject::connect(ui->memoryReadButton,			SIGNAL(clicked()), this, SLOT(memoryRead()));
@@ -242,12 +244,26 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 		log(tmp.sprintf("Device requesting %lu bytes of image 0x%02X - %s", 
 			deviceState.imageTransfer.size, deviceState.imageTransfer.imageId, port.getNamedRequestedImage(deviceState.imageTransfer.imageId).c_str()));
 		
-		QMessageBox::StandardButton userResponse = QMessageBox::question(this, "Send Image", tmp.append(". Would you like to browse and send this now?"));
+		QMessageBox confirmation;
+		confirmation.setWindowTitle("Send Image");
+		confirmation.setText(tmp.append(". Would you like to browse and send this now?"));
+		
+		QAbstractButton* confirmationButtonFile    = confirmation.addButton("Browse for image", QMessageBox::YesRole);
+		QAbstractButton* confirmationButtonXml     = confirmation.addButton("Browse for sahara.xml", QMessageBox::YesRole);
+		QAbstractButton* confirmationButtonCancel  = confirmation.addButton("Cancel", QMessageBox::RejectRole);
 
-		if (userResponse == QMessageBox::Yes) {
+		confirmation.exec();
+
+		if (confirmation.clickedButton() == confirmationButtonFile) {
 			browseForImage();
 
 			if (ui->sendImageFileValue->text().length()) {
+				sendImage();
+			}
+		} else if (confirmation.clickedButton() == confirmationButtonXml) {
+			browseForXml();
+
+			if (ui->sendImageXmlPathValue->text().length()) {
 				sendImage();
 			}
 		}
@@ -279,8 +295,8 @@ void SaharaWindow::sendImage()
 {
 	QString tmp; 
 
-	if (!ui->sendImageFileValue->text().length()) {
-		log("Enter or browse for the requested image");
+	if (!ui->sendImageFileValue->text().length() && !ui->sendImageXmlPathValue->text().length()) {
+		log("Enter or browse for the requested image, or specify a sahara.xml file");
 		return;
 	} else if (!port.isOpen()) {
 		log("Connect to a device first");
@@ -289,10 +305,104 @@ void SaharaWindow::sendImage()
 		log("Device is not requesting an image transfer");
 		return;
 	}
-	
-	addTask(new SaharaImageTransferTask(ui->sendImageFileValue->text().toStdString(), deviceState.imageTransfer, ui->progressGroupBox, port));
+
+	bool useSaharaXml = false;
+
+	if (ui->sendImageFileValue->text().length() && ui->sendImageXmlPathValue->text().length()) {
+		QMessageBox confirmation;
+		confirmation.setWindowTitle("Select Image Source");
+		confirmation.setText("You have specified an image file as well as a shara.xml file. Which would you like to use?");
+		
+		QAbstractButton* confirmationButtonFile = confirmation.addButton("Specified image file", QMessageBox::YesRole);
+		QAbstractButton* confirmationButtonXml  = confirmation.addButton("Specified sahara.xml", QMessageBox::YesRole);
+
+		confirmation.exec();
+
+		useSaharaXml = confirmation.clickedButton() == confirmationButtonXml;
+
+	} else if(ui->sendImageXmlPathValue->text().length()) {
+		useSaharaXml = true;
+	}
+
+	if (useSaharaXml) {
+		QFile saharXml(ui->sendImageXmlPathValue->text());
+
+		if (!saharXml.exists()) {
+			log(tmp.sprintf("File %s does not exist", ui->sendImageXmlPathValue->text().toStdString().c_str()));
+			return;
+		} else if(!saharXml.open(QIODevice::ReadOnly | QIODevice::Text)) {
+			log(tmp.sprintf("Error opening %s", ui->sendImageXmlPathValue->text().toStdString().c_str()));
+			return;
+		}
+
+		QFileInfo xmlFileInfo(ui->sendImageXmlPathValue->text());
+		QDir xmlFileDir 	= xmlFileInfo.dir();
+		QDir applicationDir = QDir::current();
+
+		QDomDocument dom;
+		dom.setContent(&saharXml);
+
+		QDomNodeList nodes = dom.elementsByTagName("image");
+
+		saharXml.close();
+
+		if (!nodes.count()) {
+			log("No matching XML elements found. Check XML format and try again.");
+			return;
+		}
+
+		QString imagePath;
+
+		for (int i = 0; i < nodes.count(); i++){
+			QDomElement el = nodes.at(i).toElement();
+			
+			if (!el.hasAttribute("image_id") || !el.hasAttribute("image_path")) {
+				continue;
+			}
+
+			int id 	     = el.attribute("image_id").toInt();
+			QString path = el.attribute("image_path");
+			
+			if (id == deviceState.imageTransfer.imageId) {
+				QFileInfo absoluteInfo(path);
+
+				if (absoluteInfo.exists()) {
+					imagePath = absoluteInfo.path();
+				} else if (xmlFileDir.exists(path)) {
+					imagePath = xmlFileDir.filePath(path);
+				} else if(applicationDir.exists(path)) {
+					applicationDir = xmlFileDir.filePath(path);
+				}
+				break;
+			}
+		}
+
+		if (!imagePath.length()) {
+			log("Image not found in search paths or as an absolute path. Run check on XML to get more information.");
+			return;
+		}
+
+		addTask(new SaharaImageTransferTask(imagePath.toStdString(), deviceState.imageTransfer, ui->progressGroupBox, port));
+	} else {
+		addTask(new SaharaImageTransferTask(ui->sendImageFileValue->text().toStdString(), deviceState.imageTransfer, ui->progressGroupBox, port));
+	}
 }
 
+/**
+* @brief SaharaWindow::browseForXml
+*/
+void SaharaWindow::browseForXml()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "Select Image To Send", "", "XML Files (*.xml)");
+
+	if (fileName.length()) {
+		ui->sendImageXmlPathValue->setText(fileName);
+	}
+}
+
+/**
+* @brief SaharaWindow::checkImage
+*/
 void SaharaWindow::checkImage()
 {
 	QString tmp;
@@ -325,9 +435,12 @@ void SaharaWindow::checkImage()
 	}
 }
 
+/**
+* @brief SaharaWindow::checkXml
+*/
 void SaharaWindow::checkXml()
 {
-	/*QString tmp;
+	QString tmp;
 
 	if (!ui->sendImageXmlPathValue->text().length()) {
 		log("Enter or browse for a valid sahara.xml file");
@@ -335,20 +448,61 @@ void SaharaWindow::checkXml()
 	}
 
 	QFile saharXml(ui->sendImageXmlPathValue->text());
+
+	if (!saharXml.exists()) {
+		log(tmp.sprintf("File %s does not exist", ui->sendImageXmlPathValue->text().toStdString().c_str()));
+		return;
+	} else if(!saharXml.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		log(tmp.sprintf("Error opening %s", ui->sendImageXmlPathValue->text().toStdString().c_str()));
+		return;
+	}
+
+	QFileInfo xmlFileInfo(ui->sendImageXmlPathValue->text());
+	QDir xmlFileDir 	= xmlFileInfo.dir();
+	QDir applicationDir = QDir::current();
+
+	QDomDocument dom;
+	dom.setContent(&saharXml);
+
+	QDomNodeList nodes = dom.elementsByTagName("image");
 	
-	QDomDocument document;
-	document.setContent(&saharXml);
-	
-	QDomNodeList rootNode = document.elementsByTagName("sahara_config");
-	QString tmp;
+	saharXml.close();
+
+	if (!nodes.count()) {
+		log("No matching XML elements found. Check XML format and try again.");
+		return;
+	}
+
+	log("Searching the following directories for relative images:");
+	log("\t- Specified absolute path to image");
+	log("\t- " + xmlFileDir.path());
+	log("\t- " + applicationDir.path());
+
 	for (int i = 0; i < nodes.count(); i++){
-		QDomNode elm = nodes.at(i);
-		QDomElement e = elm.toElement();
-		QListWidgetItem* item = new QListWidgetItem(ui->nvReadSelectionList);
-		item->setText(tmp.sprintf("Item #%d - %s", e.attribute("id").toInt(), e.text().toStdString().c_str()));
-		item->setData(1, e.attribute("id").toInt());
-		ui->nvReadSelectionList->addItem(item);
-	}*/
+		QDomElement el = nodes.at(i).toElement();
+		
+		if (!el.hasAttribute("image_id") || !el.hasAttribute("image_path")) {
+			log(tmp.sprintf("Image declaration %d must have id and image_path attributes", i));
+			continue;
+		}
+
+		int id 	     = el.attribute("image_id").toInt();
+		QString path = el.attribute("image_path");
+		
+		QFileInfo absoluteInfo(path);
+
+		tmp.sprintf("Image ID %d. Path: %s.", id, path.toStdString().c_str());
+
+		if (absoluteInfo.exists()) {
+			log(tmp + " Image file found at " + absoluteInfo.filePath());
+		} else if (xmlFileDir.exists(path)) {
+			log(tmp + " Image file found in " + xmlFileDir.path());
+		} else if(applicationDir.exists(path)) {
+			log(tmp + " Image file found in " + applicationDir.path());
+		} else {
+			log(tmp + " Image file not found in search paths or as an absolute path.");
+		}
+	}
 }
 
 /**
