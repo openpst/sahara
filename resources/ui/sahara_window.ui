@@ -679,7 +679,7 @@
     <widget class="QPushButton" name="portRefreshButton">
      <property name="geometry">
       <rect>
-       <x>760</x>
+       <x>660</x>
        <y>40</y>
        <width>91</width>
        <height>27</height>
@@ -748,24 +748,20 @@
       <string>Device</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="readHelloButton">
+    <widget class="QCheckBox" name="autoHelloCheckbox">
      <property name="geometry">
       <rect>
-       <x>660</x>
+       <x>760</x>
        <y>40</y>
        <width>91</width>
-       <height>27</height>
+       <height>31</height>
       </rect>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
      <property name="text">
-      <string>Read Hello</string>
+      <string>Auto Hello</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </widget>
@@ -775,7 +771,7 @@
       <x>690</x>
       <y>90</y>
       <width>181</width>
-      <height>91</height>
+      <height>121</height>
      </rect>
     </property>
     <property name="font">
@@ -791,8 +787,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>50</y>
-       <width>81</width>
+       <y>60</y>
+       <width>91</width>
        <height>27</height>
       </rect>
      </property>
@@ -811,8 +807,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
-       <width>81</width>
+       <y>30</y>
+       <width>91</width>
        <height>27</height>
       </rect>
      </property>
@@ -825,6 +821,26 @@
      </property>
      <property name="text">
       <string>Done</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="readHelloButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>91</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Read Hello</string>
      </property>
     </widget>
    </widget>
@@ -986,7 +1002,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="groupBox">
+   <widget class="QGroupBox" name="deviceStateGroupBox">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -1096,7 +1112,7 @@
    <zorder>mainTabSet</zorder>
    <zorder>miscGroupBox</zorder>
    <zorder>helloGroupBox</zorder>
-   <zorder>groupBox</zorder>
+   <zorder>deviceStateGroupBox</zorder>
    <zorder>progressGroupBox</zorder>
    <zorder>logWidget</zorder>
   </widget>

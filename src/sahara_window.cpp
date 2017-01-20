@@ -144,6 +144,9 @@ void SaharaWindow::connectToPort()
 
 				if (port.available()) {
 					readHello();
+					if (ui->autoHelloCheckbox->isChecked()) {
+						writeHello();
+					}
 				}
 
 				ui->portDisconnectButton->setEnabled(true);
