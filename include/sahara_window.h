@@ -26,7 +26,7 @@
 #include "util/sleep.h"
 #include "util/endian.h"
 #include "about_dialog.h"
-#include "task_runner_window.h"
+#include "task/task_runner.h"
 #include "task/sahara_memory_read_task.h"
 #include "task/sahara_image_transfer_task.h"
 
@@ -37,7 +37,6 @@ using OpenPST::Serial::SerialError;
 using OpenPST::QC::MbnParser;
 using OpenPST::QC::Mbn;
 using OpenPST::QC::MbnParserException;
-using serial::PortInfo;
 
 namespace Ui {
 	class SaharaWindow;
@@ -61,7 +60,7 @@ namespace OpenPST {
 				TaskRunner taskRunner;
 				volatile bool taskShouldCancel = false;				
 				SaharaSerial port;
-				PortInfo currentPort;
+				serial::PortInfo currentPort;
 				SaharaState deviceState;
 				int taskCount = 0;
 				AboutDialog aboutDialog;

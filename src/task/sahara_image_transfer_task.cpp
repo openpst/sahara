@@ -55,11 +55,11 @@ void SaharaImageTransferTask::run()
 
 		try {
 			nextOffset = port.sendImage(file, thisWriteOffset, thisWriteSize);
-		} catch (SaharaSerialError e) {
+		} catch (SaharaSerialError& e) {
 			file.close(); 
 			emit error(e.what());
 			return;
-		} catch (serial::IOException e) {
+		} catch (SerialError& e) {
 			file.close(); 
 			emit error(e.what());
 			return;

@@ -19,6 +19,7 @@
 
 using OpenPST::QC::SaharaSerial;
 using OpenPST::QC::SaharaSerialError;
+using OpenPST::Serial::SerialError;
 
 namespace OpenPST {
 	namespace GUI {
@@ -26,9 +27,9 @@ namespace OpenPST {
 		{
 			private:
 				std::string imagePath;
-				SaharaSerial& port;
-				ProgressGroupWidget* progressContainer;
 				SaharaReadDataRequest initalReadRequest;
+				ProgressGroupWidget* progressContainer;
+				SaharaSerial& port;
 
 			public:
 				SaharaImageTransferTask(std::string imagePath, SaharaReadDataRequest initalReadRequest, ProgressGroupWidget* progressContainer, SaharaSerial& port);

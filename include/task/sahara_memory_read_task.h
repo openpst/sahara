@@ -18,6 +18,7 @@
 
 using OpenPST::QC::SaharaSerial;
 using OpenPST::QC::SaharaSerialError;
+using OpenPST::Serial::SerialError;
 
 namespace OpenPST {
 	namespace GUI {

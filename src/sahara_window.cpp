@@ -794,8 +794,6 @@ void SaharaWindow::debugMemoryRead()
 
 void SaharaWindow::addTask(Task* task)
 {
-	QString tmp;
-	
 	connect(task, &Task::started,   this, &SaharaWindow::onTaskStarted);
 	connect(task, &Task::complete,  this, &SaharaWindow::onTaskComplete);
 	connect(task, &Task::aborted,   this, &SaharaWindow::onTaskAborted);
@@ -810,12 +808,32 @@ void SaharaWindow::addTask(Task* task)
 
 void SaharaWindow::cancelCurrentTask()
 {
+	QMessageBox::StandardButton answer = QMessageBox::question(
+		this,
+		tr("Confirmation"),
+		tr("Are you sure you would like to cancel the current task?")
+	);
+
+	if (answer == QMessageBox::No) {
+		return;
+	}
+
 	taskShouldCancel = true;
 	taskRunner.waitForDone();
 }
 
 void SaharaWindow::cancelAllTasks()
 {
+	QMessageBox::StandardButton answer = QMessageBox::question(
+		this,
+		tr("Confirmation"),
+		tr("Are you sure you would like to cancel all tasks?")
+	);
+
+	if (answer == QMessageBox::No) {
+		return;
+	}
+
 	taskRunner.clearQueue();
 	cancelCurrentTask();
 	taskCount = 0;

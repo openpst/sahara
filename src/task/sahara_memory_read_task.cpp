@@ -57,10 +57,10 @@ void SaharaMemoryReadTask::run()
 		try {
 			readSoFar += port.readMemory(address + readSoFar, amountToRead, file);
 			
-		} catch (SaharaSerialError e) {
+		} catch (SaharaSerialError& e) {
 			emit error(e.what());
 			return;
-		} catch (serial::IOException e) {
+		} catch (SerialError& e) {
 			emit error(e.what());
 			return;
 		}
