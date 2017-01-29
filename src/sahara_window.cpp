@@ -18,7 +18,7 @@ using namespace OpenPST::GUI;
 SaharaWindow::SaharaWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::SaharaWindow),
-	port("", 115200),
+	port("", 115200, 100),
 	deviceState({}),
 	taskRunner(&taskShouldCancel)
 {
