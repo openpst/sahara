@@ -22,6 +22,7 @@
 #include "qualcomm/sahara_serial.h"
 #include "qualcomm/sahara.h"
 #include "qualcomm/mbn_parser.h"
+#include "qualcomm/sahara_xml_reader.h"
 #include "util/hexdump.h"
 #include "util/sleep.h"
 #include "util/endian.h"
@@ -37,6 +38,8 @@ using OpenPST::Serial::SerialError;
 using OpenPST::QC::MbnParser;
 using OpenPST::QC::Mbn;
 using OpenPST::QC::MbnParserException;
+using OpenPST::QC::SaharaXmlReader;
+using OpenPST::QC::SaharaXmlEntry;
 
 namespace Ui {
 	class SaharaWindow;

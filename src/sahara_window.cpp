@@ -18,7 +18,7 @@ using namespace OpenPST::GUI;
 SaharaWindow::SaharaWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::SaharaWindow),
-	port("", 115200, 100),
+	port("", 115200, 500),
 	deviceState({}),
 	taskRunner(&taskShouldCancel)
 {
@@ -297,6 +297,7 @@ void SaharaWindow::browseForImage()
 void SaharaWindow::sendImage()
 {
 	QString tmp; 
+	SaharaXmlReader reader;
 
 	if (!ui->sendImageFileValue->text().length() && !ui->sendImageXmlPathValue->text().length()) {
 		log("Enter or browse for the requested image, or specify a sahara.xml file");
@@ -328,55 +329,48 @@ void SaharaWindow::sendImage()
 	}
 
 	if (useSaharaXml) {
-		QFile saharXml(ui->sendImageXmlPathValue->text());
-
-		if (!saharXml.exists()) {
-			log(tmp.sprintf("File %s does not exist", ui->sendImageXmlPathValue->text().toStdString().c_str()));
-			return;
-		} else if(!saharXml.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			log(tmp.sprintf("Error opening %s", ui->sendImageXmlPathValue->text().toStdString().c_str()));
+		if (!ui->sendImageXmlPathValue->text().length()) {
+			log("Enter or browse for a valid sahara.xml file");
 			return;
 		}
+
+		std::vector<SaharaXmlEntry> images;
+
+		try {
+			images = reader.parse(ui->sendImageXmlPathValue->text().toStdString());
+		} catch(std::invalid_argument& e) {
+			log(tmp.sprintf("Error parsing XML: %s", e.what()));
+			return;
+		}
+
+		if (!images.size()) {
+			log("No images found referenced in xml document");
+			return;
+		}
+
+		log(tmp.sprintf("Found %lu images referenced in xml document", images.size()));
 
 		QFileInfo xmlFileInfo(ui->sendImageXmlPathValue->text());
 		QDir xmlFileDir 	= xmlFileInfo.dir();
 		QDir applicationDir = QDir::current();
-
-		QDomDocument dom;
-		dom.setContent(&saharXml);
-
-		QDomNodeList nodes = dom.elementsByTagName("image");
-
-		saharXml.close();
-
-		if (!nodes.count()) {
-			log("No matching XML elements found. Check XML format and try again.");
-			return;
-		}
-
 		QString imagePath;
 
-		for (int i = 0; i < nodes.count(); i++){
-			QDomElement el = nodes.at(i).toElement();
-			
-			if (!el.hasAttribute("image_id") || !el.hasAttribute("image_path")) {
-				continue;
-			}
+		log("Searching the following directories for relative images:");
+		log("\t- Specified absolute path to image");
+		log("\t- " + xmlFileDir.path());
+		log("\t- " + applicationDir.path());
 
-			int id 	     = el.attribute("image_id").toInt();
-			QString path = el.attribute("image_path");
-			
-			if (id == deviceState.imageTransfer.imageId) {
-				QFileInfo absoluteInfo(path);
+		for (auto &image : images) {
+			if (image.imageId == deviceState.imageTransfer.imageId) {
+				QFileInfo absoluteInfo(image.imagePath.c_str());
 
 				if (absoluteInfo.exists()) {
 					imagePath = absoluteInfo.path();
-				} else if (xmlFileDir.exists(path)) {
-					imagePath = xmlFileDir.filePath(path);
-				} else if(applicationDir.exists(path)) {
-					applicationDir = xmlFileDir.filePath(path);
+				} else if (xmlFileDir.exists(image.imagePath.c_str())) {
+					imagePath = xmlFileDir.filePath(image.imagePath.c_str());
+				} else if(applicationDir.exists(image.imagePath.c_str())) {
+					imagePath = applicationDir.filePath(image.imagePath.c_str());
 				}
-				break;
 			}
 		}
 
@@ -443,6 +437,7 @@ void SaharaWindow::checkImage()
 */
 void SaharaWindow::checkXml()
 {
+	SaharaXmlReader reader;
 	QString tmp;
 
 	if (!ui->sendImageXmlPathValue->text().length()) {
@@ -450,57 +445,41 @@ void SaharaWindow::checkXml()
 		return;
 	}
 
-	QFile saharXml(ui->sendImageXmlPathValue->text());
+	std::vector<SaharaXmlEntry> images;
 
-	if (!saharXml.exists()) {
-		log(tmp.sprintf("File %s does not exist", ui->sendImageXmlPathValue->text().toStdString().c_str()));
-		return;
-	} else if(!saharXml.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		log(tmp.sprintf("Error opening %s", ui->sendImageXmlPathValue->text().toStdString().c_str()));
+	try {
+		images = reader.parse(ui->sendImageXmlPathValue->text().toStdString());
+	} catch(std::invalid_argument& e) {
+		log(tmp.sprintf("Error parsing XML: %s", e.what()));
 		return;
 	}
+
+	if (!images.size()) {
+		log("No images found referenced in xml document");
+		return;
+	}
+
+	log(tmp.sprintf("Found %lu images referenced in xml document", images.size()));
 
 	QFileInfo xmlFileInfo(ui->sendImageXmlPathValue->text());
 	QDir xmlFileDir 	= xmlFileInfo.dir();
 	QDir applicationDir = QDir::current();
-
-	QDomDocument dom;
-	dom.setContent(&saharXml);
-
-	QDomNodeList nodes = dom.elementsByTagName("image");
-	
-	saharXml.close();
-
-	if (!nodes.count()) {
-		log("No matching XML elements found. Check XML format and try again.");
-		return;
-	}
 
 	log("Searching the following directories for relative images:");
 	log("\t- Specified absolute path to image");
 	log("\t- " + xmlFileDir.path());
 	log("\t- " + applicationDir.path());
 
-	for (int i = 0; i < nodes.count(); i++){
-		QDomElement el = nodes.at(i).toElement();
-		
-		if (!el.hasAttribute("image_id") || !el.hasAttribute("image_path")) {
-			log(tmp.sprintf("Image declaration %d must have id and image_path attributes", i));
-			continue;
-		}
+	for (auto &image : images) {
+		QFileInfo absoluteInfo(image.imagePath.c_str());
 
-		int id 	     = el.attribute("image_id").toInt();
-		QString path = el.attribute("image_path");
-		
-		QFileInfo absoluteInfo(path);
-
-		tmp.sprintf("Image ID %d. Path: %s.", id, path.toStdString().c_str());
+		tmp.sprintf("Image ID %d. Path: %s.", image.imageId, image.imagePath.c_str());
 
 		if (absoluteInfo.exists()) {
 			log(tmp + " Image file found at " + absoluteInfo.filePath());
-		} else if (xmlFileDir.exists(path)) {
+		} else if (xmlFileDir.exists(image.imagePath.c_str())) {
 			log(tmp + " Image file found in " + xmlFileDir.path());
-		} else if(applicationDir.exists(path)) {
+		} else if(applicationDir.exists(image.imagePath.c_str())) {
 			log(tmp + " Image file found in " + applicationDir.path());
 		} else {
 			log(tmp + " Image file not found in search paths or as an absolute path.");

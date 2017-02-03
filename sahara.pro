@@ -18,6 +18,7 @@ include($$BASE_DIR/lib/libopenpst/libopenpst.pri)
 INCLUDEPATH +=  $$BASE_DIR/include \
                 $$BASE_DIR/lib/libopenpst/include \
                 $$BASE_DIR/lib/libopenpst/lib/serial/include \
+                $$BASE_DIR/lib/libopenpst/lib/pugixml/src \
                 $$BASE_DIR/lib/gui-common/include 
 
 SOURCES += \
