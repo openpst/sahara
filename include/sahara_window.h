@@ -17,16 +17,15 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
-#include <QtXml>
+#include <vector>
 #include "ui_sahara_window.h"
 #include "qualcomm/sahara_serial.h"
 #include "qualcomm/sahara.h"
 #include "qualcomm/mbn_parser.h"
 #include "qualcomm/sahara_xml_reader.h"
 #include "util/hexdump.h"
-#include "util/sleep.h"
-#include "util/endian.h"
 #include "about_dialog.h"
+#include "table_dialog.h"
 #include "task/task_runner.h"
 #include "task/sahara_memory_read_task.h"
 #include "task/sahara_image_transfer_task.h"
@@ -47,6 +46,13 @@ namespace Ui {
 
 namespace OpenPST {
 	namespace GUI {
+
+		struct ResolvedSaharaXmlEntry {
+			SaharaXmlEntry entry;
+			QString sourceFile;
+			QString path;
+		};
+
 		class SaharaWindow : public QMainWindow
 		{
 			Q_OBJECT
@@ -67,6 +73,7 @@ namespace OpenPST {
 				SaharaState deviceState;
 				int taskCount = 0;
 				AboutDialog aboutDialog;
+				std::vector<ResolvedSaharaXmlEntry> images;
 			public:
 				explicit SaharaWindow(QWidget *parent = 0);
 				~SaharaWindow();
@@ -152,20 +159,66 @@ namespace OpenPST {
 				*/
 				void debugMemoryRead();
 
+				/**
+				* @brief showAboutDialog
+				*/
 				void showAboutDialog();
 
+				/**
+				* @brief cancelCurrentTask
+				*/
 				void cancelCurrentTask();
+
+				/**
+				* @brief cancelAllTasks
+				*/
 				void cancelAllTasks();
+
+				/**
+				* @brief onTaskStarted
+				*/
 				void onTaskStarted();
+
+				/**
+				* @brief onTaskComplete
+				*/
 				void onTaskComplete();
-				void onTaskAborted();					
+
+				/**
+				* @brief onTaskAborted
+				*/
+				void onTaskAborted();	
+
+				/**
+				* @brief onTaskError
+				*/				
 				void onTaskError(QString msg);
+				
+				/**
+				* @brief onTaskLog
+				*/		
 				void onTaskLog(QString msg);
 
 			protected:
+				/**
+				* @brief updateDeviceState
+				*/	
 				void updateDeviceState();
+				
+				/**
+				* @brief closeEvent
+				*/	
 				void closeEvent(QCloseEvent *event);
+				
+				/**
+				* @brief addTask
+				*/	
 				void addTask(Task* task);
+
+				/**
+				* @brief parseSaharaXml
+				*/	
+				void parseSaharaXml(const QString& filePath);
 
 		};
 	}
