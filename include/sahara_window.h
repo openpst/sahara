@@ -36,8 +36,9 @@ using OpenPST::QC::SaharaSerialError;
 using OpenPST::Serial::SerialError;
 using OpenPST::QC::MbnParser;
 using OpenPST::QC::Mbn;
-using OpenPST::QC::MbnParserException;
+using OpenPST::QC::MbnParserError;
 using OpenPST::QC::SaharaXmlReader;
+using OpenPST::QC::SaharaXmlReaderError;
 using OpenPST::QC::SaharaXmlEntry;
 
 namespace Ui {

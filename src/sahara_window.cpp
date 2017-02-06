@@ -26,23 +26,23 @@ SaharaWindow::SaharaWindow(QWidget *parent) :
 	ui->setupUi(this);
 
 	ui->writeHelloSwitchModeValue->addItem("", -1);
-	ui->writeHelloSwitchModeValue->addItem("Image Transfer Pending", kSaharaModeImageTxPending);
-	ui->writeHelloSwitchModeValue->addItem("Memory Debug",	kSaharaModeMemoryDebug);
-	ui->writeHelloSwitchModeValue->addItem("Client Command Mode", kSaharaModeCommand);
+	ui->writeHelloSwitchModeValue->addItem(tr("Image Transfer Pending"), kSaharaModeImageTxPending);
+	ui->writeHelloSwitchModeValue->addItem(tr("Memory Debug"),	kSaharaModeMemoryDebug);
+	ui->writeHelloSwitchModeValue->addItem(tr("Client Command Mode"), kSaharaModeCommand);
 
 	ui->clientCommandValue->addItem("", -1);
-	ui->clientCommandValue->addItem("NOP", kSaharaClientCmdNop);
-	ui->clientCommandValue->addItem("Read Serial Number", kSaharaClientCmdSerialNumRead);
-	ui->clientCommandValue->addItem("Read MSM HW ID", kSaharaClientCmdMsmHWIDRead);
-	ui->clientCommandValue->addItem("Read OEM PK Hash", kSaharaClientOemPkHashRead);
-	//ui->clientCommandValue->addItem("Switch To DMSS DLOAD", kSaharaClientCmdSwitchDMSS);
-	//ui->clientCommandValue->addItem("Switch To Streaming DLOAD", kSaharaClientCmdSwitchToStreamingDload);
-	ui->clientCommandValue->addItem("Read Debug Data", kSaharaClientCmdReadDebugData);
-	ui->clientCommandValue->addItem("Get SBL SW Version", kSaharaClientCmdGetSblVersion);
+	ui->clientCommandValue->addItem(tr("NOP"), kSaharaClientCmdNop);
+	ui->clientCommandValue->addItem(tr("Read Serial Number"), kSaharaClientCmdSerialNumRead);
+	ui->clientCommandValue->addItem(tr("Read MSM HW ID"), kSaharaClientCmdMsmHWIDRead);
+	ui->clientCommandValue->addItem(tr("Read OEM PK Hash"), kSaharaClientOemPkHashRead);
+	//ui->clientCommandValue->addItem(tr("Switch To DMSS DLOAD"), kSaharaClientCmdSwitchDMSS);
+	//ui->clientCommandValue->addItem(tr("Switch To Streaming DLOAD"), kSaharaClientCmdSwitchToStreamingDload);
+	ui->clientCommandValue->addItem(tr("Read Debug Data"), kSaharaClientCmdReadDebugData);
+	ui->clientCommandValue->addItem(tr("Get SBL SW Version"), kSaharaClientCmdGetSblVersion);
 
 	ui->switchModeValue->addItem("", -1);
-	ui->switchModeValue->addItem("Image Transfer Pending", kSaharaModeImageTxPending);
-	ui->switchModeValue->addItem("Memory Debug", kSaharaModeMemoryDebug);
+	ui->switchModeValue->addItem(tr("Image Transfer Pending"), kSaharaModeImageTxPending);
+	ui->switchModeValue->addItem(tr("Memory Debug"), kSaharaModeMemoryDebug);
 
 	updatePortList();
 
@@ -87,14 +87,14 @@ SaharaWindow::~SaharaWindow()
 void SaharaWindow::updatePortList()
 {
 	if (port.isOpen()) {
-		log("Port is currently open");
+		log(tr("Port is currently open"));
 		return;
 	}
 
 	std::vector<serial::PortInfo> devices = serial::list_ports();
 
 	ui->portList->clear();
-	ui->portList->addItem("- Select a Port -");
+	ui->portList->addItem(tr("- Select a Port -"));
 
 	QString tmp;
 
@@ -122,10 +122,10 @@ void SaharaWindow::connectToPort()
 	QString tmp;
 
 	if (port.isOpen()) {
-		log("A device is already open");
+		log(tr("A device is already open"));
 		return;
 	} else if (selected.compare("0") == 0 || !selected.length()) {
-		log("Select to a device first");
+		log(tr("Select to a device first"));
 		return;
 	}
 
@@ -138,7 +138,7 @@ void SaharaWindow::connectToPort()
 					port.open();
 				}
 
-				ui->deviceStateText->setText("Connected");
+				ui->deviceStateText->setText(tr("Connected"));
 
 				log(tmp.sprintf("Connected to %s", device.port.c_str()));
 
@@ -170,14 +170,14 @@ void SaharaWindow::readHello()
 	SaharaHelloRequest req = {};
 	
 	if (!port.isOpen()) {
-		log("Connect to a device first");
+		log(tr("Connect to a device first"));
 		return;
 	} else if (!port.available()) {
-		log("No data waiting. Not in sahara mode, already in a session, or device requires a restart.");
+		log(tr("No data waiting. Not in sahara mode, already in a session, or device requires a restart."));
 		return;
 	}
 
-	log("Reading hello handshake");
+	log(tr("Reading hello handshake"));
 
 	try {
 		req = port.readHello();
@@ -216,7 +216,7 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 	QString tmp;
 
 	if (!port.isOpen()) {
-		log("Connect to a device first");
+		log(tr("Connect to a device first"));
 		return;
 	}
 	
@@ -248,12 +248,12 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 			deviceState.imageTransfer.size, deviceState.imageTransfer.imageId, port.getNamedRequestedImage(deviceState.imageTransfer.imageId).c_str()));
 		
 		QMessageBox confirmation;
-		confirmation.setWindowTitle("Send Image");
-		confirmation.setText(tmp.append(". Would you like to browse and send this now?"));
+		confirmation.setWindowTitle(tr("Send Image"));
+		confirmation.setText(tmp.append(tr(". Would you like to browse and send this now?")));
 		
-		QAbstractButton* confirmationButtonFile    = confirmation.addButton("Browse for image", QMessageBox::YesRole);
-		QAbstractButton* confirmationButtonXml     = confirmation.addButton("Browse for sahara.xml", QMessageBox::YesRole);
-		QAbstractButton* confirmationButtonCancel  = confirmation.addButton("Cancel", QMessageBox::RejectRole);
+		QAbstractButton* confirmationButtonFile    = confirmation.addButton(tr("Browse for image"), QMessageBox::YesRole);
+		QAbstractButton* confirmationButtonXml     = confirmation.addButton(tr("Browse for sahara.xml"), QMessageBox::YesRole);
+		QAbstractButton* confirmationButtonCancel  = confirmation.addButton(tr("Cancel"), QMessageBox::RejectRole);
 
 		confirmation.exec();
 
@@ -275,7 +275,7 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 		log(tmp.sprintf("Memory table located at 0x%08X with size of %lu bytes", deviceState.memoryDebug.memoryTableAddress, deviceState.memoryDebug.memoryTableLength));
 		debugMemoryRead();
 	} else if (deviceState.mode == kSaharaModeCommand) {
-		log("Device is awaiting client commands");
+		log(tr("Device is awaiting client commands"));
 	}
 }
 
@@ -284,7 +284,7 @@ void SaharaWindow::writeHello(uint32_t overrideMode)
 */
 void SaharaWindow::browseForImage()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "Select Image To Send", "", "Image Files (*.mbn *.bin *.img)");
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Select Image To Send"), "", tr("Image Files (*.mbn *.bin *.img)"));
 
 	if (fileName.length()) {
 		ui->sendImageFileValue->setText(fileName);
@@ -300,13 +300,13 @@ void SaharaWindow::sendImage()
 	SaharaXmlReader reader;
 
 	if (!ui->sendImageFileValue->text().length() && !ui->sendImageXmlPathValue->text().length()) {
-		log("Enter or browse for the requested image, or specify a sahara.xml file");
+		log(tr("Enter or browse for the requested image, or specify a sahara.xml file"));
 		return;
 	} else if (!port.isOpen()) {
-		log("Connect to a device first");
+		log(tr("Connect to a device first"));
 		return;
 	} else if (deviceState.mode != kSaharaModeImageTxPending || (deviceState.mode == kSaharaModeImageTxPending && deviceState.imageTransfer.imageId == kMbnImageNone)) {
-		log("Device is not requesting an image transfer");
+		log(tr("Device is not requesting an image transfer"));
 		return;
 	}
 
@@ -314,11 +314,11 @@ void SaharaWindow::sendImage()
 
 	if (ui->sendImageFileValue->text().length() && ui->sendImageXmlPathValue->text().length()) {
 		QMessageBox confirmation;
-		confirmation.setWindowTitle("Select Image Source");
-		confirmation.setText("You have specified an image file as well as a shara.xml file. Which would you like to use?");
+		confirmation.setWindowTitle(tr("Select Image Source"));
+		confirmation.setText(tr("You have specified an image file as well as a shara.xml file. Which would you like to use?"));
 		
-		QAbstractButton* confirmationButtonFile = confirmation.addButton("Specified image file", QMessageBox::YesRole);
-		QAbstractButton* confirmationButtonXml  = confirmation.addButton("Specified sahara.xml", QMessageBox::YesRole);
+		QAbstractButton* confirmationButtonFile = confirmation.addButton(tr("Specified image file"), QMessageBox::YesRole);
+		QAbstractButton* confirmationButtonXml  = confirmation.addButton(tr("Specified sahara.xml"), QMessageBox::YesRole);
 
 		confirmation.exec();
 
@@ -332,7 +332,7 @@ void SaharaWindow::sendImage()
 		QString imagePath;
 
 		if (!ui->sendImageXmlPathValue->text().length()) {
-			log("Enter or browse for a valid sahara.xml file");
+			log(tr("Enter or browse for a valid sahara.xml file"));
 			return;
 		}
 
@@ -345,7 +345,7 @@ void SaharaWindow::sendImage()
 		}
 
 		if (!imagePath.length()) {
-			log("Image not found in search paths or as an absolute path. Run check on XML to get more information.");
+			log(tr("Image not found in search paths or as an absolute path. Run check on XML to get more information."));
 			return;
 		}
 
@@ -360,7 +360,7 @@ void SaharaWindow::sendImage()
 */
 void SaharaWindow::browseForXml()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "Select Image To Send", "", "XML Files (*.xml)");
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Select Image To Send"), "", tr("XML Files (*.xml)"));
 
 	if (fileName.length()) {
 		ui->sendImageXmlPathValue->setText(fileName);
@@ -375,7 +375,7 @@ void SaharaWindow::checkImage()
 	QString tmp;
 
 	if (!ui->sendImageFileValue->text().length()) {
-		log("Enter or browse for an image");
+		log(tr("Enter or browse for an image"));
 		return;
 	}
 	
@@ -389,14 +389,14 @@ void SaharaWindow::checkImage()
 		if (deviceState.mode == kSaharaModeImageTxPending) {
 			if (fileInfo->getImageId() == deviceState.imageTransfer.imageId) {
 				if (fileInfo->getSignaturePtr()) {
-					log("Base on the requested image id, this appears to be a correct image. This image is signed, and may not be compatible with this device.");
+					log(tr("Base on the requested image id, this appears to be a correct image. This image is signed, and may not be compatible with this device."));
 				} else {
-					log("Base on the requested image id, this appears to be a correct image.");
+					log(tr("Base on the requested image id, this appears to be a correct image."));
 				}		
 			}
 		} 
 
-	} catch (MbnParserException& e) {
+	} catch (MbnParserError& e) {
 		log(tmp.sprintf("Error parsing mbn file at %s.", ui->sendImageFileValue->text().toStdString().c_str()));
 		log(e.what());
 	}
@@ -410,7 +410,7 @@ void SaharaWindow::checkXml()
 	QString tmp;
 
 	if (!ui->sendImageXmlPathValue->text().length()) {
-		log("Enter or browse for a valid sahara.xml file");
+		log(tr("Enter or browse for a valid sahara.xml file"));
 		return;
 	}
 
@@ -458,7 +458,7 @@ void SaharaWindow::checkXml()
 void SaharaWindow::switchMode()
 {
 	if (!port.isOpen()) {
-		log("Connect to a device first.");
+		log(tr("Connect to a device first"));
 		return;
 	}
 
@@ -495,7 +495,7 @@ void SaharaWindow::switchMode()
 void SaharaWindow::sendClientCommand()
 {
 	if (!port.isOpen()) {
-		log("Connect to a device first.");
+		log(tr("Connect to a device first"));
 		return;
 	}
 
@@ -545,11 +545,11 @@ void SaharaWindow::sendClientCommand()
 void SaharaWindow::sendReset()
 {
 	if (!port.isOpen()) {
-		log("Connect to a device first.");
+		log(tr("Connect to a device first"));
 		return;
 	}
 
-	log("Sending Reset Command");
+	log(tr("Sending Reset Command"));
 
 	try {
 		port.sendReset();
@@ -569,11 +569,11 @@ void SaharaWindow::sendReset()
 void SaharaWindow::sendDone()
 {
 	if (!port.isOpen()) {
-		log("Connect to a device first.");
+		log(tr("Connect to a device first"));
 		return;
 	}
 
-	log("Sending Done Command");
+	log(tr("Sending Done Command"));
 
 	try {
 		port.sendDone();
@@ -585,7 +585,7 @@ void SaharaWindow::sendDone()
 		return;
 	}
 
-	log("Done Command Successfully Sent");
+	log(tr("Done Command Successfully Sent"));
 }
 
 /**
@@ -595,9 +595,9 @@ void SaharaWindow::disconnectPort()
 {
 	if (port.isOpen()) {
 		port.close();
-		log("Port Closed");
+		log(tr("Port Closed"));
 		ui->portDisconnectButton->setEnabled(false);
-		ui->deviceStateText->setText("Disconnected");
+		ui->deviceStateText->setText(tr("Disconnected"));
 		deviceState = {};
 	}
 }
@@ -609,17 +609,17 @@ void SaharaWindow::disconnectPort()
 void SaharaWindow::memoryRead()
 {
 	if (!port.isOpen()) {
-		log("Connect to a device first.");
+		log(tr("Connect to a device first"));
 		return;
 	}
 
 	if (!ui->memoryReadAddressValue->text().length()) {
-		log("Enter a starting read address in hexidecimal format");
+		log(tr("Enter a starting read address in hexidecimal format"));
 		return;
 	}
 
 	if (!ui->memoryReadSizeValue->text().length()) {
-		log("Enter an amount in bytes to read");
+		log(tr("Enter an amount in bytes to read"));
 		return;
 	}
 
@@ -636,7 +636,7 @@ void SaharaWindow::memoryRead()
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Read Data"), "", tr("Binary Files (*.bin)"));
 
 	if (!fileName.length()) {
-		log("No file set to save memory content. Operation cancelled");
+		log(tr("No file set to save memory content. Operation cancelled"));
 		return;
 	}
 
@@ -654,10 +654,10 @@ void SaharaWindow::debugMemoryRead()
 	std::vector<uint8_t> debugTable;
 
 	if (deviceState.mode != kSaharaModeMemoryDebug) {
-		log("Device does not appear to be in memory debug mode");
+		log(tr("Device does not appear to be in memory debug mode"));
 		return; 
 	} else if (deviceState.memoryDebug.memoryTableLength <= 0) {
-		log("Device responded with an invalid length memory table");
+		log(tr("Device responded with an invalid length memory table"));
 		return;
 	}
 
@@ -686,7 +686,7 @@ void SaharaWindow::debugMemoryRead()
 		ui->debugMemoryLocationsTable->setItem(i, kSaharaMemoryDebugTableColumnSize, new QTableWidgetItem(tmp.sprintf("%lu", entry->size)));
 	}
 
-	QMessageBox::StandardButton userResponse = QMessageBox::question(this, "Memory Table", tmp.sprintf("Pull all %d files referenced in the memory table?", totalRegions));
+	QMessageBox::StandardButton userResponse = QMessageBox::question(this, tr("Memory Table"), tmp.sprintf("Pull all %d files referenced in the memory table?", totalRegions));
 		
 	if (userResponse == QMessageBox::Yes) {
 
@@ -699,7 +699,7 @@ void SaharaWindow::debugMemoryRead()
 				entry = reinterpret_cast<SaharaMemoryTableEntry*>(&debugTable[i*sizeof(SaharaMemoryTableEntry)]);
 
 				if (entry->size > 1000000) { // confirm files larger than 1mb
-					QMessageBox::StandardButton largeFileUserResponse = QMessageBox::question(this, "Confirm Large File", tmp.sprintf("Pull large file %s (%lu bytes) or skip it?", entry->filename, entry->size));
+					QMessageBox::StandardButton largeFileUserResponse = QMessageBox::question(this, tr("Confirm Large File"), tmp.sprintf("Pull large file %s (%lu bytes) or skip it?", entry->filename, entry->size));
 
 					if (largeFileUserResponse != QMessageBox::Yes) {
 						log(tmp.sprintf("Skipping %s - %s", entry->filename, entry->name));
@@ -713,11 +713,11 @@ void SaharaWindow::debugMemoryRead()
 			}
 			
 		} else {
-			log("Dump all cancelled");
+			log(tr("Dump all cancelled"));
 		}
 	}
 	
-	QMessageBox::StandardButton saveMemoryTableResponse = QMessageBox::question(this, "Save Memory Table", "Save the raw memory table to a file?");
+	QMessageBox::StandardButton saveMemoryTableResponse = QMessageBox::question(this, tr("Save Memory Table"), tr("Save the raw memory table to a file?"));
 
 	if (saveMemoryTableResponse == QMessageBox::Yes) {
 		QString memoryTableFileName = QFileDialog::getSaveFileName(this, tr("Save Raw Memory Table"), "", tr("Binary Files (*.bin)"));
@@ -730,10 +730,10 @@ void SaharaWindow::debugMemoryRead()
 				file.write(reinterpret_cast<char*>(&debugTable[0]), debugTable.size());
 				file.close();
 			} else {
-				log("Error opening memory table file for writing");
+				log(tr("Error opening memory table file for writing"));
 			}
 		} else {
-			log("Save raw memory table cancelled");
+			log(tr("Save raw memory table cancelled"));
 		}
 	}
 }
@@ -905,15 +905,15 @@ void SaharaWindow::parseSaharaXml(const QString& filePath)
 
 	try {
 		_images = reader.parse(filePath.toStdString());
-	} catch(std::invalid_argument& e) {
+	} catch(SaharaXmlReaderError& e) {
 		log(tmp.sprintf("Error parsing XML: %s", e.what()));
 		return;
 	} catch (...) {
-		log("error parsing XML: Unhandled exception");
+		log(tr("Error parsing XML: Unhandled exception"));
 	}
 
 	if (!_images.size()) {
-		log("No images found referenced in xml document");
+		log(tr("No images found referenced in xml document"));
 		return;
 	}
 
@@ -923,8 +923,8 @@ void SaharaWindow::parseSaharaXml(const QString& filePath)
 	QDir xmlFileDir 	= xmlFileInfo.dir();
 	QDir applicationDir = QDir::current();
 
-	log("Searching the following directories for relative images:");
-	log("\t- Specified absolute path to image");
+	log(tr("Searching the following directories for relative images:"));
+	log(tr("\t- Specified absolute path to image"));
 	log("\t- " + xmlFileDir.path());
 	log("\t- " + applicationDir.path());
 
