@@ -32,7 +32,4 @@ Though not all devices are supported. For me Nexus 5 works however it seems to b
 On some device you can short certain things on the board itself and enter edl mode. The idea here is that you short access to EMMC, forcing PBL to enter Sahara. Search XDA for this info, it is available for some devices.
 
 #### Forcing Memory Debug
-Memory Debug mode can be triggered on a device with root access. I have found you can enter it by zero'ing out the aboot partition (this includes abootb partitions which are backups, that may replace your zero'ed out aboot partition). I would not recommend this for the average user. You can easily brick your device with this method but it has worked for me on every device I have tested. Obviously you need some way to recover these if no signed images are available with full recovery. With LG phones and LAF partition (stock LG proprietary flasher) you can easily get a root shell and recover these partitions, though it is not the case for all LG phones. Take care when attempting this.
-
-
-
+Memory Debug mode can be triggered on a device with root access. I have found you can enter it by zero'ing out the aboot partition (this includes abootb partitions which are backups, that may replace your zero'ed out aboot partition). I would not recommend this for the average user. You can easily brick your device with this method but it has worked for me on every device I have tested. When in memory debug mode the device will enumerate the EMMC to your machine as a mass storage device so you can just write back the aboot partition.
