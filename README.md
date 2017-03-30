@@ -5,8 +5,9 @@ However, even if you have no valid programmer file(s) to send, you can still que
 
 	- MSM HW ID - The Hardware ID of the MSM chipset. Burned in a QFPROM fuse.
 	- Serial Number - The serial number of the device. Burned in a QFPROM fuse.
-	- PK HASH - The hash of the public key used to sign the image. Included in the X509 in the image. (?dunnoz? correct me here)
+	- OEM_PK_HASH - The hash of the entire root certificate which is blown into the QFPROM fuses of the device. the root certificate is included in the X509 certificate store of the SBL1 image. (Thanks Tal Aloni)
 	- Log buffer - Get a raw log buffer of the failed boot process (?assumed? corred me here)
+	- SBL SW Version - Returns the SBL version. 
 
 Additionally sahara mode also handles debug mode. Debug mode allows to transfer the state of a crash. It also allows for reading memory at the state of the crash point. This includes all user and kernel mode memory. However, it does not include memory protected by the TEE (Trusted Execution Environment) implementation. So yeah.... not the good stuff :(
 
