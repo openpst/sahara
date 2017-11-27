@@ -18,6 +18,12 @@ When a device in sahara debug mode is the case, it will respond the initial hell
     git clone https://github.com/openpst/sahara --recursive
     make
 
+Be sure to install the requied dependencies: boost and QT5.
+
+On debian systems with aptitude install the following:
+
+	sudo apt-get install build-essential qt5-default qt5-qmake libboost-dev
+
 ### Usage
 Usage will come at some point
 
