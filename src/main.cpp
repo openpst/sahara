@@ -37,7 +37,6 @@
  */
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     OpenPST::GUI::Application application(argc, argv, "sahara_");
 
     OpenPST::GUI::SaharaWindow window;
