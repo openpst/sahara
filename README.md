@@ -25,7 +25,26 @@ On debian systems with aptitude install the following:
 	sudo apt-get install build-essential qt5-default qt5-qmake libboost-dev
 
 ### Usage
-Usage will come at some point
+
+#### Sending Firmware/Loader
+
+- Connect to the Device
+- You should receive a hello packet. If not restart the device.
+- Once hello handshake is complete, it should be ready to accept firmaware/loaders. You should see the image it is requesting displayed in the log.
+- Browse for the loader file Sahara is requesting or provide a sahara.xml file with the image definitions and paths defined in the xml document. See https://github.com/openpst/assets/blob/master/examples/sahara.xml.example as an example format.
+- Send the selected file / process the selected sahara.xml
+- Once no more images are requested, click the Done button to send the done command.
+- If a loader was sent, transfer to the apropriate protocol. i.e. streaming dload, or firehose (not supported yet)
+
+#### Sending Client Commands
+- Uncheck Auto Hello
+- Connect to the device
+- It should automatically read the hello from the device, if not press the Read Hello button.
+- Set Mode in the Hello Handshake section to Client Command Mode
+- Click the Respond button in the Hello Handshake section
+- Go to Command tab if it does not take you there automatically
+- Send a client command
+
 
 ### Misc Notes
 
