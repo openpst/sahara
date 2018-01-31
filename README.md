@@ -59,3 +59,8 @@ On some device you can short certain things on the board itself and enter edl mo
 
 #### Forcing Memory Debug
 Memory Debug mode can be triggered on a device with root access. I have found you can enter it by zero'ing out the aboot partition (this includes abootb partitions which are backups, that may replace your zero'ed out aboot partition). I would not recommend this for the average user. You can easily brick your device with this method but it has worked for me on every device I have tested. When in memory debug mode the device will enumerate the EMMC to your machine as a mass storage device so you can just write back the aboot partition.
+
+
+### Pre-Builts
+
+Some pre-builds available https://github.com/openpst/sahara/releases
